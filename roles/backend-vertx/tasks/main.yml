@@ -1,0 +1,19 @@
+- name: Kill old backend
+  command: pkill -f backend-vertx
+  failed_when: false
+- name: Create backend dir
+  file: 
+    path: '{{ backend_dir }}'
+    state: directory
+- name: Copy Vert.x backend
+  copy:
+    src: '{{ inventory_dir }}/backend-vertx/target/backend-vertx-{{ version }}-fat.jar'
+    dest: '{{ backend_dir }}/backend-vertx-{{ version }}-fat.jar'
+- name: Run Vert.x backend
+  shell: 'java -Dbackend.port={{ backend_port }} -jar {{ backend_dir }}/backend-vertx-{{ version }}-fat.jar &> {{ backend_dir }}/vertx.log'
+  async: 100000
+  poll: 0
+- name: Shutdown
+  tags: ['never', 'shutdown']
+  command: pkill -f backend-vertx
+  failed_when: false

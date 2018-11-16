@@ -1,0 +1,29 @@
+- name: Kill old SailRocket
+  command: 'pkill -f sailrocket-{{ sailrocket_version }}/bin'
+  failed_when: false
+- name: Create driver dir
+  file:
+    path: '{{ driver_dir }}'
+    state: directory
+- name: Copy distribution
+  maven_artifact:
+    group_id: io.sailrocket    
+    artifact_id: distribution    
+    extension: zip
+    version: '{{ sailrocket_version }}'
+    dest: '{{ driver_dir }}/sailrocket-{{ sailrocket_version }}.zip'
+    repository_url: '{{ sailrocket_repository }}'
+- name: Unpack distribution
+  unarchive:
+    src: '{{ driver_dir }}/sailrocket-{{ sailrocket_version }}.zip'
+    dest: '{{ driver_dir }}'
+    remote_src: false    
+- name: Start SailRocket
+  shell: '{{ driver_dir }}/sailrocket-{{ sailrocket_version }}/bin/standalone.sh > {{ driver_dir }}/driver.log'
+  async: 100000
+  poll: 0
+- name: Shutdown Envoy
+  tags: ['never', 'shutdown']
+  command: 'pkill -f sailrocket-{{ sailrocket_version }}/bin'
+  failed_when: false
+  
