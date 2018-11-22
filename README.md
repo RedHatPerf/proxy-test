@@ -15,8 +15,10 @@ ansible-playbook -i hosts setup.yml
 This does not trigger the load yet; benchmark is deployed and started with
 
 ```bash
-ansible-playbook -i hosts test.yml
+ansible-playbook -i hosts --ask-become-pass test.yml 
 ```
+
+This requires elevated priviledges since we're running system-wide `perf record` on the machine running proxy. The result flamegraph will be stored in `{{ test_flamegraph }}` (defaults to `/tmp/perf.svg`, configure in `hosts`). Performance results are stored in `{{ driver_dir }}/workspace/run/XXXX/stats` (`{{ driver_dir }}` default to `/tmp/driver`).
 
 Top stop all the services run:
 

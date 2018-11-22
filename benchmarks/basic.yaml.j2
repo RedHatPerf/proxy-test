@@ -1,0 +1,23 @@
+name: basic
+simulation:
+  http:
+    baseUrl: http://{{ proxy_host }}:{{ proxy_port }}
+    sharedConnections: {{ test_shared_connections | default(100, true) }}
+  phases:
+  - rampUp: !rampPerSec
+      initialUsersPerSec: 1
+      targetUsersPerSec: {{ test_users_per_sec }}
+      duration: {{ test_rampup_duration }}
+      scenario: &scenario
+        orderedSequences:
+        - test:
+          - httpRequest:
+              method: GET
+              path: {{ test_path | default("/", true) }}
+          - awaitAllResponses                  
+  - steadyState: !constantPerSec
+      usersPerSec: {{ test_users_per_sec }}
+      startAfter: rampUp
+      duration: {{ test_steady_duration }}
+      scenario: *scenario  
+

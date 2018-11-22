@@ -1,4 +1,5 @@
 - name: Kill old SailRocket
+  tags: [ 'shutdown' ]
   command: 'pkill -f sailrocket-{{ sailrocket_version }}/bin'
   failed_when: false
 - name: Create driver dir
@@ -13,17 +14,22 @@
     version: '{{ sailrocket_version }}'
     dest: '{{ driver_dir }}/sailrocket-{{ sailrocket_version }}.zip'
     repository_url: '{{ sailrocket_repository }}'
+    verify_checksum: always
 - name: Unpack distribution
   unarchive:
     src: '{{ driver_dir }}/sailrocket-{{ sailrocket_version }}.zip'
     dest: '{{ driver_dir }}'
-    remote_src: false    
+    remote_src: false        
 - name: Start SailRocket
-  shell: '{{ driver_dir }}/sailrocket-{{ sailrocket_version }}/bin/standalone.sh > {{ driver_dir }}/driver.log'
+  shell: >
+    {{ driver_dir }}/sailrocket-{{ sailrocket_version }}/bin/standalone.sh
+    -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+    {% if log_config is defined %}
+    -Dlog4j.configurationFile=file://{{ log_config }}
+    {% endif %}
+    -Dio.sailrocket.rootdir={{ driver_dir }}/workspace
+    -Dio.sailrocket.controller.host={{ sailrocket_controller_host }}
+    -Dio.sailrocket.controller.port={{ sailrocket_controller_port }}
+    &> {{ driver_dir }}/driver.log
   async: 100000
-  poll: 0
-- name: Shutdown Envoy
-  tags: ['never', 'shutdown']
-  command: 'pkill -f sailrocket-{{ sailrocket_version }}/bin'
-  failed_when: false
-  
+  poll: 0  

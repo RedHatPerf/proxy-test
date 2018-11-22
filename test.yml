@@ -1,7 +1,105 @@
 - hosts: 127.0.0.1
   connection: local
   tasks:
-  - name: TODO
-    debug:
-      msg: TODO
-      
+  - name: Apply benchmark template
+    template:
+      src: 'benchmarks/{{ test_name }}.yaml.j2'
+      dest: '/tmp/{{ test_name }}.yaml'
+  - name: Upload benchmark template
+    uri:
+      src: '/tmp/{{ test_name }}.yaml'
+      method: POST
+      headers:
+        Content-Type: "text/vnd.yaml; charset=UTF-8"
+      url: "http://{{ groups['driver'][0] }}:{{ sailrocket_controller_port }}/benchmark"
+      status_code: 204
+
+- hosts: proxy
+  tasks:
+  - name: Get temporary dir for recording
+    tempfile:      
+      state: directory
+    register: perf_dir_remote
+  - name: Start Perf recording
+    become: true
+    become_user: root
+    shell: sleep {{ test_rampup_duration }} && perf record -a -g -F 99 -o {{ perf_dir_remote.path }}/perf.data
+    async: 100000
+    poll: 0
+
+- hosts: 127.0.0.1
+  connection: local
+  tasks:
+  - name: Start benchmark
+    uri:
+      url: "http://{{ groups['driver'][0] }}:{{ sailrocket_controller_port }}/benchmark/{{ test_name }}/start"
+      status_code: 202
+    register: test_run
+  - debug:
+      msg: "Benchmark URI: {{ test_run.location }}"
+  - name: Poll benchmark completion
+    uri:
+      url: "{{ test_run.location }}"
+      return_content: true
+    register: test_status
+    # Ansible 2.7 does not support include_tasks in do-until loop so we need to inline the condition
+    # See https://github.com/ansible/ansible/issues/46203 for details
+    until: >
+      (test_status.content | from_json | json_query('phases[*].status') | reject('match', 'TERMINATED') | list | length) == 0
+      and
+      (test_status.content | from_json | json_query('phases[*].status') | length) != 0
+    delay: 5    
+    retries: 100000
+  - name: Prepare local workdir
+    tempfile:      
+      state: directory
+    register: perf_dir_local
+
+- hosts: proxy
+  tasks:
+  - name: Stop Perf recording
+    become: true
+    become_user: root
+    shell: pkill -f "perf record"
+  - name: Chown perf recording
+    become: true
+    become_user: root
+    file:
+      path: "{{ perf_dir_remote.path }}/perf.data"
+      owner: "{{ ansible_user_id }}"
+  - name: Resolve symbols
+    shell: "perf script --kallsyms=/proc/kallsyms -i {{ perf_dir_remote.path }}/perf.data > {{ perf_dir_remote.path }}/perf.stacks"
+  - name: Move perf recording
+    fetch:
+      src: "{{ perf_dir_remote.path }}/perf.stacks"
+      dest: "{{ perf_dir_local.path }}/"
+      flat: true
+  - name: Delete remote recording
+    file:
+      path: "{{ perf_dir_remote.path }}"      
+      state: absent
+
+- hosts: 127.0.0.1
+  connection: local
+  tasks:
+  - get_url:
+      url: https://raw.githubusercontent.com/brendangregg/FlameGraph/master/stackcollapse-perf.pl
+      dest: /tmp/stackcollapse-perf.pl
+  - get_url:
+      url: https://raw.githubusercontent.com/brendangregg/FlameGraph/master/flamegraph.pl
+      dest: /tmp/flamegraph.pl
+  - file:
+      path: "{{ item }}"
+      mode: 0755
+    with_items:
+    - /tmp/stackcollapse-perf.pl
+    - /tmp/flamegraph.pl
+  # TODO: there could be problems running perf script on different machine...
+  - name: "Create stacktraces"
+    shell: "cat {{ perf_dir_local.path }}/perf.stacks | /tmp/stackcollapse-perf.pl > {{ perf_dir_local.path }}/perf.inline"
+  - name: "Create flamegraph"
+    shell: /tmp/flamegraph.pl --colors=java --width=1850 {{ perf_dir_local.path }}/perf.inline > {{ test_flamegraph }}
+  - name: "Delete temp dirs"
+    file:
+      path: "{{ perf_dir_local.path }}"
+      state: absent

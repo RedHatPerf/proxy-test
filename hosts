@@ -18,7 +18,14 @@ backend_dir=/tmp/backend
 
 [all:vars]
 version=0.1-SNAPSHOT
-backend_address=127.0.0.1
+backend_host=127.0.0.1
 backend_port=8088
-proxy_address=127.0.0.1
+proxy_host=127.0.0.1
 proxy_port=8080
+sailrocket_controller_host=0.0.0.0
+sailrocket_controller_port=8090
+test_name=basic
+test_rampup_duration=10
+test_steady_duration=60
+test_users_per_sec=2000
+test_flamegraph=/tmp/perf.svg

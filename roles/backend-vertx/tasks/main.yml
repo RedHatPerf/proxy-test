@@ -1,4 +1,5 @@
 - name: Kill old backend
+  tags: [ 'shutdown' ]
   command: pkill -f backend-vertx
   failed_when: false
 - name: Create backend dir
@@ -13,7 +14,3 @@
   shell: 'java -Dbackend.port={{ backend_port }} -jar {{ backend_dir }}/backend-vertx-{{ version }}-fat.jar &> {{ backend_dir }}/vertx.log'
   async: 100000
   poll: 0
-- name: Shutdown
-  tags: ['never', 'shutdown']
-  command: pkill -f backend-vertx
-  failed_when: false

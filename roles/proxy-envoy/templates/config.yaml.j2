@@ -2,7 +2,7 @@ static_resources:
   listeners:
   - address:
       socket_address:
-        address: {{ proxy_address }} 
+        address: {{ proxy_host }} 
         port_value: {{ proxy_port }}
     filter_chains:
     - filters:
@@ -29,14 +29,15 @@ static_resources:
     connect_timeout: 0.25s
     type: strict_dns
     lb_policy: round_robin
-    http2_protocol_options: {}
+#   http2_protocol_options: {}
+    protocol_selection: USE_DOWNSTREAM_PROTOCOL
     hosts:
     - socket_address:
-        address: {{ backend_address }}
+        address: {{ backend_host }}
         port_value: {{ backend_port }}  
 admin:
   access_log_path: "/dev/null"
   address:
     socket_address:
-      address: {{ proxy_admin_address }}
+      address: {{ proxy_admin_host }}
       port_value: {{ proxy_admin_port }}

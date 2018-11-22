@@ -4,15 +4,19 @@
   connection: local
   tasks:
   - name: "Build Backend"
+    tags: [ 'never', 'build' ]
     command: 'mvn install'
     args:
       chdir: backend-vertx
 - hosts: backend
+  tags: [ 'backend' ]
   roles:
   - backend-vertx
 - hosts: proxy
+  tags: [ 'proxy' ]
   roles:
   - proxy-envoy
 - hosts: driver
+  tags: [ 'driver' ]
   roles: 
   - driver-sailrocket

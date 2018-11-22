@@ -1,4 +1,5 @@
 - name: Kill old proxy
+  tags: [ 'shutdown' ]
   command: pkill -f {{ envoy_bin }}
   failed_when: false
 - name: Create proxy dir
@@ -13,7 +14,3 @@
   shell: '{{ envoy_bin }} -c {{ proxy_dir }}/config.yaml &> {{ proxy_dir }}/envoy.log'
   async: 100000
   poll: 0
-- name: Shutdown Envoy
-  tags: ['never', 'shutdown']
-  command: 'pkill -f {{ envoy_bin }}'
-  failed_when: false
