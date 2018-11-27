@@ -14,8 +14,13 @@
   - backend-vertx
 - hosts: proxy
   tags: [ 'proxy' ]
-  roles:
-  - proxy-envoy
+  tasks:
+  - name: Create proxy dir
+    file:
+      path: '{{ proxy_dir }}'
+      state: directory
+  - include_role:
+      name: "{{ proxy_impl }}"
 - hosts: driver
   tags: [ 'driver' ]
   roles: 

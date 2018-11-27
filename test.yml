@@ -2,10 +2,12 @@
   connection: local
   tasks:
   - name: Apply benchmark template
+    tags: [ 'noperf' ]
     template:
       src: 'benchmarks/{{ test_name }}.yaml.j2'
       dest: '/tmp/{{ test_name }}.yaml'
   - name: Upload benchmark template
+    tags: [ 'noperf' ]
     uri:
       src: '/tmp/{{ test_name }}.yaml'
       method: POST
@@ -31,13 +33,19 @@
   connection: local
   tasks:
   - name: Start benchmark
+    tags: [ 'noperf' ]
     uri:
       url: "http://{{ groups['driver'][0] }}:{{ sailrocket_controller_port }}/benchmark/{{ test_name }}/start"
       status_code: 202
     register: test_run
-  - debug:
-      msg: "Benchmark URI: {{ test_run.location }}"
+  - tags: [ 'noperf' ]
+    set_fact:
+      test_runid: "{{ test_run.location | urlsplit('path') | basename }}"    
+  - tags: [ 'noperf' ]
+    debug:
+      msg: "Benchmark URI: {{ test_run.location }} -> {{ test_runid }}"  
   - name: Poll benchmark completion
+    tags: [ 'noperf' ]
     uri:
       url: "{{ test_run.location }}"
       return_content: true
@@ -61,13 +69,10 @@
     become: true
     become_user: root
     shell: pkill -f "perf record"
-  - name: Chown perf recording
+  # We need to call perf script as root in order to get kernel.kallsyms debug info correctly
+  - name: Resolve symbols
     become: true
     become_user: root
-    file:
-      path: "{{ perf_dir_remote.path }}/perf.data"
-      owner: "{{ ansible_user_id }}"
-  - name: Resolve symbols
     shell: "perf script --kallsyms=/proc/kallsyms -i {{ perf_dir_remote.path }}/perf.data > {{ perf_dir_remote.path }}/perf.stacks"
   - name: Move perf recording
     fetch:
@@ -98,7 +103,9 @@
   - name: "Create stacktraces"
     shell: "cat {{ perf_dir_local.path }}/perf.stacks | /tmp/stackcollapse-perf.pl > {{ perf_dir_local.path }}/perf.inline"
   - name: "Create flamegraph"
-    shell: /tmp/flamegraph.pl --colors=java --width=1850 {{ perf_dir_local.path }}/perf.inline > {{ test_flamegraph }}
+    shell: /tmp/flamegraph.pl --colors=java --width=1850 {{ perf_dir_local.path }}/perf.inline > {{ test_result_dir }}/{{ test_runid }}-{{ proxy_impl }}.svg
+  - debug:
+      msg: "Flamegraph: {{ test_result_dir }}/{{ test_runid }}-{{ proxy_impl }}.svg"
   - name: "Delete temp dirs"
     file:
       path: "{{ perf_dir_local.path }}"

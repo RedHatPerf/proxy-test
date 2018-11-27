@@ -1,0 +1,16 @@
+- name: Kill old proxy
+  tags: [ 'shutdown' ]
+  command: pkill -f nginx
+  failed_when: false
+- name: Copy config template
+  template:
+    src: config.conf.j2
+    dest: '{{ proxy_dir }}/nginx.conf'
+- name: Create tmp dir
+  file:
+    path: "{{ proxy_dir }}/tmp"
+    state: directory
+- name: Start NGINX
+  shell: '/usr/sbin/nginx -c {{ proxy_dir }}/nginx.conf &> {{ proxy_dir }}/nginx.log'
+  async: 100000
+  poll: 0
