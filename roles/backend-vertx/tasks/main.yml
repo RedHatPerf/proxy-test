@@ -11,6 +11,12 @@
     src: '{{ inventory_dir }}/backend-vertx/target/backend-vertx-{{ version }}-fat.jar'
     dest: '{{ backend_dir }}/backend-vertx-{{ version }}-fat.jar'
 - name: Run Vert.x backend
-  shell: 'java -Dbackend.port={{ backend_port }} -jar {{ backend_dir }}/backend-vertx-{{ version }}-fat.jar &> {{ backend_dir }}/vertx.log'
+  shell: >
+    java -Dbackend.port={{ backend_port }}
+    {% if libperfjava is defined %}
+    -XX:+PreserveFramePointer -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -agentpath:{{ libperfjava }}
+    {% endif %}
+    -jar {{ backend_dir }}/backend-vertx-{{ version }}-fat.jar
+    &> {{ backend_dir }}/vertx.log
   async: 100000
   poll: 0

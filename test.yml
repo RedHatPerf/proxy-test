@@ -73,7 +73,20 @@
   - name: Resolve symbols
     become: true
     become_user: root
-    shell: "perf script --kallsyms=/proc/kallsyms -i {{ perf_dir_remote.path }}/perf.data > {{ perf_dir_remote.path }}/perf.stacks"
+    shell: >
+      perf script -f -F comm,pid,tid,cpu,time,event,ip,sym,dso,trace
+      --kallsyms=/proc/kallsyms -i {{ perf_dir_remote.path }}/perf.data
+      > {{ perf_dir_remote.path }}/perf.stacks
+    register: perf_script
+  - name: Perf data size
+    become: true
+    become_user: root   
+    shell: stat --printf="%s" {{ perf_dir_remote.path }}/perf.data
+    register: perf_data_size
+  - name: Test perf data
+    debug:
+      msg: perf.data has {{ perf_data_size.stdout }} bytes
+    failed_when: perf_data_size.stdout == 0
   - name: Move perf recording
     fetch:
       src: "{{ perf_dir_remote.path }}/perf.stacks"
@@ -99,9 +112,8 @@
     with_items:
     - /tmp/stackcollapse-perf.pl
     - /tmp/flamegraph.pl
-  # TODO: there could be problems running perf script on different machine...
   - name: "Create stacktraces"
-    shell: "cat {{ perf_dir_local.path }}/perf.stacks | /tmp/stackcollapse-perf.pl > {{ perf_dir_local.path }}/perf.inline"
+    shell: "/tmp/stackcollapse-perf.pl --pid {{ perf_dir_local.path }}/perf.stacks > {{ perf_dir_local.path }}/perf.inline"
   - name: "Create flamegraph"
     shell: /tmp/flamegraph.pl --colors=java --width=1850 {{ perf_dir_local.path }}/perf.inline > {{ test_result_dir }}/{{ test_runid }}-{{ proxy_impl }}.svg
   - debug:

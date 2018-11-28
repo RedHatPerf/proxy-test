@@ -4,7 +4,7 @@
   failed_when: false
 - name: Copy config template
   template:
-    src: config.yaml.j2
+    src: '{{ proxy_config }}.yaml.j2'
     dest: '{{ proxy_dir }}/envoy-config.yaml'
 - name: Start Envoy
   shell: '{{ envoy_bin }} -c {{ proxy_dir }}/envoy-config.yaml &> {{ proxy_dir }}/envoy.log'
