@@ -21,6 +21,7 @@
       state: directory
   - include_role:
       name: "{{ proxy_impl }}"
+    tags: always
 - hosts: driver
   tags: [ 'driver' ]
   roles: 

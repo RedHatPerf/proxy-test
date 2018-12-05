@@ -52,10 +52,10 @@
     register: test_status
     # Ansible 2.7 does not support include_tasks in do-until loop so we need to inline the condition
     # See https://github.com/ansible/ansible/issues/46203 for details
-    until: >
-      (test_status.content | from_json | json_query('phases[*].status') | reject('match', 'TERMINATED') | list | length) == 0
-      and
-      (test_status.content | from_json | json_query('phases[*].status') | length) != 0
+    until: test_status.content | from_json | json_query('terminated')
+#      (test_status.content | from_json | json_query('phases[*].status') | reject('match', 'TERMINATED') | list | length) == 0
+#      and
+#      (test_status.content | from_json | json_query('phases[*].status') | length) != 0
     delay: 5    
     retries: 100000
   - name: Prepare local workdir

@@ -33,3 +33,4 @@ test_rampup_duration=60
 test_steady_duration=300    
 test_users_per_sec=2000
 test_result_dir=/tmp/
+test_shared_connections=1000
