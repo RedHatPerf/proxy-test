@@ -8,8 +8,8 @@
     state: directory
 - name: Copy distribution
   maven_artifact:
-    group_id: io.sailrocket    
-    artifact_id: distribution    
+    group_id: io.sailrocket
+    artifact_id: distribution
     extension: zip
     version: '{{ sailrocket_version }}'
     dest: '{{ driver_dir }}/sailrocket-{{ sailrocket_version }}.zip'
@@ -19,17 +19,18 @@
   unarchive:
     src: '{{ driver_dir }}/sailrocket-{{ sailrocket_version }}.zip'
     dest: '{{ driver_dir }}'
-    remote_src: false        
+    remote_src: false
 - name: Start SailRocket
+  #-XX:+UnlockCommercialFeatures -XX:+FlightRecorder
+  #-XX:StartFlightRecording=compress=false,delay=10s,duration=24h,settings=profile,filename={{ driver_dir }}/sailrocket.jfr
   shell: >
     {{ driver_dir }}/sailrocket-{{ sailrocket_version }}/bin/standalone.sh
     {% if libperfjava is defined %}
     -XX:+PreserveFramePointer -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -agentpath:{{ libperfjava }}
     {% endif %}
     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+    -ea
     -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath={{ driver_dir }}
-    #-XX:+UnlockCommercialFeatures -XX:+FlightRecorder
-    #-XX:StartFlightRecording=compress=false,delay=10s,duration=24h,settings=profile,filename={{ driver_dir }}/sailrocket.jfr    
     {% if log_config is defined %}
     -Dlog4j.configurationFile=file://{{ log_config }}
     {% endif %}
@@ -38,4 +39,4 @@
     -Dio.sailrocket.controller.port={{ sailrocket_controller_port }}
     &> {{ driver_dir }}/driver.log
   async: 100000
-  poll: 0  
+  poll: 0

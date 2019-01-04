@@ -7,6 +7,11 @@
     src: '{{ proxy_config }}.yaml.j2'
     dest: '{{ proxy_dir }}/envoy-config.yaml'
 - name: Start Envoy
-  shell: '{{ envoy_bin }} -c {{ proxy_dir }}/envoy-config.yaml &> {{ proxy_dir }}/envoy.log'
+  shell: >
+    {{ envoy_bin }} -c {{ proxy_dir }}/envoy-config.yaml
+    {% if proxy_workers is defined %}
+    --concurrency {{ proxy_workers }}
+    {% endif %}
+    &> {{ proxy_dir }}/envoy.log
   async: 100000
   poll: 0
