@@ -1,7 +1,7 @@
 name: basic
 simulation:
   http:
-    baseUrl: http://{{ proxy_host }}:{{ proxy_port }}
+    baseUrl: http://{{ groups['proxy'][0] }}:{{ proxy_port }}
     sharedConnections: {{ test_shared_connections | default(100, true) }}
   phases:
   - rampUp:
@@ -15,11 +15,10 @@ simulation:
             - httpRequest:
                 method: GET
                 path: {{ test_path | default("/", true) }}
-            - awaitAllResponses                  
+            - awaitAllResponses
   - steadyState:
       constantPerSec:
         usersPerSec: {{ test_users_per_sec }}
         startAfter: rampUp
         duration: {{ test_steady_duration }}
-        scenario: *scenario  
-
+        scenario: *scenario

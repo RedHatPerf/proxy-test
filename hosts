@@ -9,6 +9,7 @@ localhost
 
 [proxy:vars]
 proxy_dir=/tmp/proxy
+envoy_bin=/home/rvansa/workspace/envoy/bazel-bin/source/exe/envoy-static
 
 [backend]
 localhost
@@ -22,7 +23,6 @@ backend_host=127.0.0.1
 backend_port=8088
 proxy_impl=proxy-envoy
 proxy_config=http-proxy
-proxy_host=127.0.0.1
 proxy_port=8080
 proxy_workers=1
 # Build from https://github.com/jesperpedersen/perfjava
