@@ -9,6 +9,8 @@ import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 
@@ -16,6 +18,8 @@ public class BackendServer extends AbstractVerticle {
    private static final BigInteger FOUR = BigInteger.valueOf(4);
    private static final BigInteger MINUS_ONE = BigInteger.valueOf(-1);
    private static final BigInteger MINUS_TWO = BigInteger.valueOf(-2);
+
+   private static final Logger log = LoggerFactory.getLogger(BackendServer.class);
 
    private int port = Integer.getInteger("backend.port", 8080);
 
@@ -46,6 +50,10 @@ public class BackendServer extends AbstractVerticle {
                }
                future.complete(s.compareTo(BigInteger.ZERO) == 0);
             }, false, result -> {
+               if (ctx.response().ended()) {
+                  // connection has been closed before we calculated the result
+                  return;
+               }
                if (result.succeeded()) {
                   ctx.response().end(String.valueOf(result.result()));
                } else {

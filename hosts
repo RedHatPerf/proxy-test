@@ -16,6 +16,7 @@ localhost
 
 [backend:vars]
 backend_dir=/tmp/backend
+backend_log_config=/home/rvansa/workspace/etc/log4j/log4j2-info.xml
 
 [all:vars]
 version=0.1-SNAPSHOT
