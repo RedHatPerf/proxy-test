@@ -1,0 +1,36 @@
+name: mersenne
+simulation:
+  http:
+    baseUrl: http://{{ groups['proxy'][0] }}:{{ proxy_port }}
+    sharedConnections: {{ test_shared_connections | default(100, true) }}
+  phases:
+  - warmup:
+      constantPerSec:
+        usersPerSec: 2000
+        duration: 20
+        scenario: &scenario
+          orderedSequences:
+          - test:
+            - sla:
+                errorRate: 0.05
+                meanResponseTime: 500 ms
+            - randomInt:
+                min: 20
+                max: 100
+                var: p
+            - httpRequest:
+                GET:
+                  pattern: /mersenne?p=${p}
+            - awaitAllResponses
+  - iterations:
+      constantPerSec:
+        startAfter: warmup
+        usersPerSec:
+          base:      10000
+          increment: 1000
+        maxIterations: 15
+        duration: 20
+        # We need to set maxDuration, otherwise the scheduled request would prolong the phase
+        maxDuration: 20
+        maxUnfinishedSessions: 500
+        scenario: *scenario

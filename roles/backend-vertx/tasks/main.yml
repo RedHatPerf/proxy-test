@@ -3,7 +3,7 @@
   command: pkill -f backend-vertx
   failed_when: false
 - name: Create backend dir
-  file: 
+  file:
     path: '{{ backend_dir }}'
     state: directory
 - name: Copy Vert.x backend

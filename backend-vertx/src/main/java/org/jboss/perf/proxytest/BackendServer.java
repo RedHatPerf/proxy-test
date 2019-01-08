@@ -1,5 +1,7 @@
 package org.jboss.perf.proxytest;
 
+import java.math.BigInteger;
+
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.core.AbstractVerticle;
@@ -11,6 +13,10 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 
 public class BackendServer extends AbstractVerticle {
+   private static final BigInteger FOUR = BigInteger.valueOf(4);
+   private static final BigInteger MINUS_ONE = BigInteger.valueOf(-1);
+   private static final BigInteger MINUS_TWO = BigInteger.valueOf(-2);
+
    private int port = Integer.getInteger("backend.port", 8080);
 
    @Override
@@ -24,6 +30,31 @@ public class BackendServer extends AbstractVerticle {
       router.route(HttpMethod.POST, "/").handler(BodyHandler.create()).handler(ctx -> {
          HttpServerResponse response = ctx.response();
          response.setStatusCode(HttpResponseStatus.OK.code()).end(ctx.getBody());
+      });
+      // Adjust worker pool size using -Dvertx.options.workerPoolSize=xxx
+      // See https://en.wikipedia.org/wiki/Lucas%E2%80%93Lehmer_primality_test
+      router.route(HttpMethod.GET, "/mersenneprime").handler(ctx -> {
+         String pStr = ctx.request().getParam("p");
+         int p;
+         try {
+            p = Integer.parseInt(pStr);
+            vertx.executeBlocking(future -> {
+               BigInteger s = FOUR;
+               BigInteger M = BigInteger.valueOf(2).pow(p).add(MINUS_ONE);
+               for (int i = 0; i < p - 2; ++i) {
+                  s = s.multiply(s).add(MINUS_TWO).mod(M);
+               }
+               future.complete(s.compareTo(BigInteger.ZERO) == 0);
+            }, false, result -> {
+               if (result.succeeded()) {
+                  ctx.response().end(String.valueOf(result.result()));
+               } else {
+                  ctx.response().setStatusCode(500).end();
+               }
+            });
+         } catch (NumberFormatException e) {
+            ctx.response().setStatusCode(400).end();
+         }
       });
       vertx.createHttpServer().requestHandler(router::accept).listen(port, result -> {
          if (result.failed()) {
