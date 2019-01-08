@@ -12,9 +12,12 @@
     dest: '{{ backend_dir }}/backend-vertx-{{ version }}-fat.jar'
 - name: Run Vert.x backend
   shell: >
-    java -Dbackend.port={{ backend_port }}
+    java -Dbackend.port={{ backend_port }} -Dvertx.logger-delegate-factory-class-name=io.vertx.core.logging.Log4j2LogDelegateFactory
     {% if libperfjava is defined %}
     -XX:+PreserveFramePointer -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -agentpath:{{ libperfjava }}
+    {% endif %}
+    {% if backend_log_config is defined %}
+    -Dlog4j.configurationFile=file://{{ backend_log_config }}
     {% endif %}
     -jar {{ backend_dir }}/backend-vertx-{{ version }}-fat.jar
     &> {{ backend_dir }}/vertx.log

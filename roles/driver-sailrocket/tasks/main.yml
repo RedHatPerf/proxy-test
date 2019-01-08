@@ -31,8 +31,8 @@
     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
     -ea
     -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath={{ driver_dir }}
-    {% if log_config is defined %}
-    -Dlog4j.configurationFile=file://{{ log_config }}
+    {% if driver_log_config is defined %}
+    -Dlog4j.configurationFile=file://{{ driver_log_config }}
     {% endif %}
     -Dio.sailrocket.rootdir={{ driver_dir }}/workspace
     -Dio.sailrocket.controller.host={{ sailrocket_controller_host }}
