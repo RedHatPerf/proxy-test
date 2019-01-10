@@ -34,6 +34,10 @@ static_resources:
     - socket_address:
         address: {{ backend_host }}
         port_value: {{ backend_port }}
+    circuit_breakers: # effectively disable circuit breaking
+      thresholds:
+        max_pending_requests: 100000
+        max_requests: 100000
 admin:
   access_log_path: "/dev/null"
   address:
