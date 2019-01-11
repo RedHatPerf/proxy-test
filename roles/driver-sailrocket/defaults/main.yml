@@ -1,2 +1,3 @@
 sailrocket_version: 0.1-SNAPSHOT
 sailrocket_repository: 'file://{{ ansible_user_dir }}/.m2/repository'
+sailrocket_role: agent

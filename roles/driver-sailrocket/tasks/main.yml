@@ -1,6 +1,6 @@
 - name: Kill old SailRocket
   tags: [ 'shutdown' ]
-  command: 'pkill -f sailrocket-{{ sailrocket_version }}/bin'
+  command: 'pkill -f io.sailrocket.role={{ sailrocket_role }}'
   failed_when: false
 - name: Create driver dir
   file:
@@ -24,11 +24,11 @@
   #-XX:+UnlockCommercialFeatures -XX:+FlightRecorder
   #-XX:StartFlightRecording=compress=false,delay=10s,duration=24h,settings=profile,filename={{ driver_dir }}/sailrocket.jfr
   shell: >
-    {{ driver_dir }}/sailrocket-{{ sailrocket_version }}/bin/standalone.sh
+    {{ driver_dir }}/sailrocket-{{ sailrocket_version }}/bin/{{ sailrocket_role }}.sh
+    -Dio.sailrocket.role={{ sailrocket_role }}
     {% if libperfjava is defined %}
     -XX:+PreserveFramePointer -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -agentpath:{{ libperfjava }}
     {% endif %}
-    -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
     -ea
     -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath={{ driver_dir }}
     {% if driver_log_config is defined %}
@@ -37,6 +37,6 @@
     -Dio.sailrocket.rootdir={{ driver_dir }}/workspace
     -Dio.sailrocket.controller.host={{ sailrocket_controller_host }}
     -Dio.sailrocket.controller.port={{ sailrocket_controller_port }}
-    &> {{ driver_dir }}/driver.log
+    &> {{ driver_dir }}/{{ sailrocket_role }}.log
   async: 100000
   poll: 0

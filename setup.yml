@@ -22,7 +22,15 @@
   - include_role:
       name: "{{ proxy_impl }}"
     tags: always
+- hosts: 127.0.0.1
+  connection: local
+  tags: [ 'driver' ]
+  tasks:
+  - include_role:
+      name: driver-sailrocket
+    vars:
+      sailrocket_role: controller
 - hosts: driver
   tags: [ 'driver' ]
-  roles: 
+  roles:
   - driver-sailrocket
