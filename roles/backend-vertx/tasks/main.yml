@@ -16,6 +16,9 @@
     {% if backend_servers is defined %}
     -Dbackend.servers={{ backend_servers }}
     {% endif %}
+    {% if backend_workers is defined %}
+    -Dvertx.options.workerPoolSize={{ backend_workers }}
+    {% endif %}
     {% if libperfjava is defined %}
     -XX:+PreserveFramePointer -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -agentpath:{{ libperfjava }}
     {% endif %}
