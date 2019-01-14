@@ -37,6 +37,7 @@
     -Dio.sailrocket.rootdir={{ driver_dir }}/workspace
     -Dio.sailrocket.controller.host={{ sailrocket_controller_host }}
     -Dio.sailrocket.controller.port={{ sailrocket_controller_port }}
+    -Djgroups.tcp.address={{ ansible_hostname }}
     &> {{ driver_dir }}/{{ sailrocket_role }}.log
   async: 100000
   poll: 0

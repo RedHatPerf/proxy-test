@@ -13,6 +13,9 @@
 - name: Run Vert.x backend
   shell: >
     java -Dbackend.port={{ backend_port }} -Dvertx.logger-delegate-factory-class-name=io.vertx.core.logging.Log4j2LogDelegateFactory
+    {% if backend_servers is defined %}
+    -Dbackend.servers={{ backend_servers }}
+    {% endif %}
     {% if libperfjava is defined %}
     -XX:+PreserveFramePointer -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -agentpath:{{ libperfjava }}
     {% endif %}
