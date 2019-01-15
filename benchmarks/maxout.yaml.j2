@@ -4,7 +4,11 @@ hosts:
   {{ hostvars[agent]['ansible_fqdn'] }}: {{ hostvars[agent]['ansible_fqdn'] }}:12345
 {% endfor %}
 simulation:
+<<<<<<< HEAD
   threads: 16
+=======
+  threads: 8
+>>>>>>> 2159806... Lab settings
   http:
 {% for proxy in groups['proxy'] %}
   - baseUrl: http://{{ hostvars[proxy]['ansible_' + proxy_iface]['ipv4']['address'] }}:{{ hostvars[proxy]['proxy_port'] }}
@@ -29,9 +33,15 @@ simulation:
       constantPerSec:
         startAfter: warmup
         usersPerSec:
+<<<<<<< HEAD
           base:      {{ test_users_per_sec }}
           increment: {{ test_inc_users_per_sec }}
         maxIterations: 30
+=======
+          base:      10000
+          increment: 1000
+        maxIterations: 40
+>>>>>>> 2159806... Lab settings
         duration: 20
         # We need to set maxDuration, otherwise the scheduled request would prolong the phase
         maxDuration: 20

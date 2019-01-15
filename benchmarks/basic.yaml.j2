@@ -19,7 +19,7 @@ simulation:
           orderedSequences:
           - test:
             - httpRequest:
-                method: GET
+               method: GET
                 path: {{ test_path | default("/", true) }}
             - awaitAllResponses
   - steadyState:

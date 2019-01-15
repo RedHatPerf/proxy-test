@@ -3,50 +3,60 @@ driver-master
 driver-agent
 
 [driver-master]
-localhost
+benchclient1
 
 [driver-agent]
-localhost
+benchclient1
+#benchclient2
 
 [driver:vars]
+driver_jfr=false
 driver_dir=/tmp/driver
-driver_log_config=/home/rvansa/workspace/etc/log4j/log4j2-info.xml
+#driver_log_config=/home/benchuser/rvansa/log4j2.xml
+driver_log_config=/home/benchuser/rvansa/log4j2-info.xml
 
 [proxy]
-proxy1 ansible_host=localhost proxy_port=8080 proxy_admin_port=8001
+proxy1 ansible_host=benchserver1 proxy_port=8080 proxy_admin_port=8001
+#proxy2 ansible_host=benchserver1 proxy_port=8081 proxy_admin_port=8002
+#proxy3 ansible_host=benchserver1 proxy_port=8082 proxy_admin_port=8003
+#proxy4 ansible_host=benchserver1 proxy_port=8083 proxy_admin_port=8004
 
 [proxy:vars]
 proxy_dir=/tmp/proxy
-envoy_bin=/home/rvansa/workspace/envoy/bazel-bin/source/exe/envoy-static
+envoy_bin=/home/benchuser/rvansa/envoy/bazel-bin/source/exe/envoy-static
 proxy_workers=1
 
 [backend]
-backend1 ansible_host=localhost backend_port=8088
+backend1 backend_port=8088 ansible_host=benchserver1
+#backend2 backend_port=8098 ansible_host=benchserver1
+#backend3 backend_port=8908 ansible_host=benchserver1
+#backend4 backend_port=8918 ansible_host=benchserver1
 
 [backend:vars]
 backend_dir=/tmp/backend
-backend_log_config=/home/rvansa/workspace/etc/log4j/log4j2-info.xml
-backend_servers=1
-backend_workers=8
+backend_log_config=/home/benchuser/rvansa/log4j2-info.xml
+backend_servers=16
+backend_workers=32
 backend_jfr=false
 
 [all:vars]
 version=0.1-SNAPSHOT
-backend_host=127.0.0.1
-backend_port=8088
-backend_iface=lo
-proxy_iface=lo
+# This must be defined for proxy, too
+backend_iface=ens2f0
+proxy_iface=ens2f0
 proxy_impl=proxy-envoy
 proxy_config=http-proxy
-proxy_port=8080
 # Build from https://github.com/jesperpedersen/perfjava
-libperfjava=/home/rvansa/workspace/perfjava/libperfjava.so
+#libperfjava=/home/rvansa/workspace/perfjava/libperfjava.so
 hyperfoil_controller_host=0.0.0.0
 hyperfoil_controller_port=8090
-test_name=basic
+hyperfoil_distribution=/home/benchuser/rvansa/Hyperfoil/distribution/target/hyperfoil-0.1-SNAPSHOT.zip
+#test_name=basic
+#test_name=maxout
+test_name=mersenne
 test_rampup_duration=20
 test_steady_duration=60
-test_users_per_sec=2000
+test_users_per_sec=10000
 test_inc_users_per_sec=2000
 test_result_dir=/tmp/
-test_shared_connections=1000
+test_shared_connections=5000

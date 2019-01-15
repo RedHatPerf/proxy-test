@@ -14,10 +14,17 @@ simulation:
   - warmup:
       rampPerSec:
         initialUsersPerSec: 1
+<<<<<<< HEAD
         targetUsersPerSec: {{ test_users_per_sec }}
         duration: 20
         maxDuration: 21
         maxUnfinishedSessions: {{ test_users_per_sec }}
+=======
+        targetUsersPerSec: 10000
+        duration: 20
+        maxDuration: 21
+        maxUnfinishedSessions: 10000
+>>>>>>> 2159806... Lab settings
         scenario: &scenario
           orderedSequences:
           - test:
@@ -43,6 +50,7 @@ simulation:
                       max: 299
             - awaitAllResponses
   - iterations:
+<<<<<<< HEAD
       constantPerSec:
         startAfter: warmup
         usersPerSec:
@@ -54,3 +62,16 @@ simulation:
         maxDuration: 21
         maxUnfinishedSessions: {{ test_users_per_sec }}
         scenario: *scenario
+=======
+     constantPerSec:
+       startAfter: warmup
+       usersPerSec:
+         base:      10000
+         increment: 2000
+       maxIterations: 30
+       duration: 20
+       # We need to set maxDuration, otherwise the scheduled request would prolong the phase
+       maxDuration: 21
+       maxUnfinishedSessions: 10000
+       scenario: *scenario
+>>>>>>> 2159806... Lab settings
