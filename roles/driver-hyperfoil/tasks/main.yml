@@ -1,0 +1,46 @@
+- name: Kill old Hyperfoil
+  tags: [ 'shutdown' ]
+  command: 'pkill -f io.hyperfoil.role={{ hyperfoil_role }}'
+  failed_when: false
+- name: Create driver dir
+  file:
+    path: '{{ driver_dir }}'
+    state: directory
+- name: Copy distribution
+  copy:
+    src: '{{ hyperfoil_distribution }}'
+    dest: '{{ driver_dir }}/hyperfoil-{{ hyperfoil_version }}.zip'
+#  maven_artifact:
+#    group_id: io.hyperfoil
+#    artifact_id: distribution
+#    extension: zip
+#    version: '{{ hyperfoil_version }}'
+#    dest: '{{ driver_dir }}/hyperfoil-{{ hyperfoil_version }}.zip'
+#    repository_url: '{{ hyperfoil_repository }}'
+#    verify_checksum: always
+- name: Unpack distribution
+  unarchive:
+    src: '{{ driver_dir }}/hyperfoil-{{ hyperfoil_version }}.zip'
+    dest: '{{ driver_dir }}'
+    remote_src: false
+- name: Start Hyperfoil
+  #-XX:+UnlockCommercialFeatures -XX:+FlightRecorder
+  #-XX:StartFlightRecording=compress=false,delay=10s,duration=24h,settings=profile,filename={{ driver_dir }}/hyperfoil.jfr
+  shell: >
+    {{ driver_dir }}/hyperfoil-{{ hyperfoil_version }}/bin/{{ hyperfoil_role }}.sh
+    -Dio.hyperfoil.role={{ hyperfoil_role }}
+    {% if libperfjava is defined %}
+    -XX:+PreserveFramePointer -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -agentpath:{{ libperfjava }}
+    {% endif %}
+    -ea
+    -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath={{ driver_dir }}
+    {% if driver_log_config is defined %}
+    -Dlog4j.configurationFile=file://{{ driver_log_config }}
+    {% endif %}
+    -Dio.hyperfoil.rootdir={{ driver_dir }}/workspace
+    -Dio.hyperfoil.controller.host={{ hyperfoil_controller_host }}
+    -Dio.hyperfoil.controller.port={{ hyperfoil_controller_port }}
+    -Djgroups.tcp.address={{ ansible_hostname }}
+    &> {{ driver_dir }}/{{ hyperfoil_role }}.log
+  async: 100000
+  poll: 0

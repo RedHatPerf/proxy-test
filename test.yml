@@ -13,13 +13,13 @@
       method: POST
       headers:
         Content-Type: "text/vnd.yaml; charset=UTF-8"
-      url: "http://{{ groups['driver'][0] }}:{{ sailrocket_controller_port }}/benchmark"
+      url: "http://{{ groups['driver'][0] }}:{{ hyperfoil_controller_port }}/benchmark"
       status_code: 204
 
 - hosts: proxy
   tasks:
   - name: Get temporary dir for recording
-    tempfile:      
+    tempfile:
       state: directory
     register: perf_dir_remote
   - name: Start Perf recording
@@ -35,15 +35,15 @@
   - name: Start benchmark
     tags: [ 'noperf' ]
     uri:
-      url: "http://{{ groups['driver'][0] }}:{{ sailrocket_controller_port }}/benchmark/{{ test_name }}/start"
+      url: "http://{{ groups['driver'][0] }}:{{ hyperfoil_controller_port }}/benchmark/{{ test_name }}/start"
       status_code: 202
     register: test_run
   - tags: [ 'noperf' ]
     set_fact:
-      test_runid: "{{ test_run.location | urlsplit('path') | basename }}"    
+      test_runid: "{{ test_run.location | urlsplit('path') | basename }}"
   - tags: [ 'noperf' ]
     debug:
-      msg: "Benchmark URI: {{ test_run.location }} -> {{ test_runid }}"  
+      msg: "Benchmark URI: {{ test_run.location }} -> {{ test_runid }}"
   - name: Poll benchmark completion
     tags: [ 'noperf' ]
     uri:
@@ -56,10 +56,10 @@
 #      (test_status.content | from_json | json_query('phases[*].status') | reject('match', 'TERMINATED') | list | length) == 0
 #      and
 #      (test_status.content | from_json | json_query('phases[*].status') | length) != 0
-    delay: 5    
+    delay: 5
     retries: 100000
   - name: Prepare local workdir
-    tempfile:      
+    tempfile:
       state: directory
     register: perf_dir_local
 
@@ -80,7 +80,7 @@
     register: perf_script
   - name: Perf data size
     become: true
-    become_user: root   
+    become_user: root
     shell: stat --printf="%s" {{ perf_dir_remote.path }}/perf.data
     register: perf_data_size
   - name: Test perf data
@@ -94,7 +94,7 @@
       flat: true
   - name: Delete remote recording
     file:
-      path: "{{ perf_dir_remote.path }}"      
+      path: "{{ perf_dir_remote.path }}"
       state: absent
 
 - hosts: 127.0.0.1

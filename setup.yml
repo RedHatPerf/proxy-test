@@ -27,10 +27,10 @@
   tags: [ 'driver' ]
   tasks:
   - include_role:
-      name: driver-sailrocket
+      name: driver-hyperfoil
     vars:
-      sailrocket_role: controller
+          hyperfoil_role: controller
 - hosts: driver
   tags: [ 'driver' ]
   roles:
-  - driver-sailrocket
+  - driver-hyperfoil

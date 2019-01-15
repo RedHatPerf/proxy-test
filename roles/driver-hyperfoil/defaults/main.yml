@@ -1,0 +1,4 @@
+hyperfoil_version: 0.1-SNAPSHOT
+hyperfoil_distribution: '{{ ansible_user_dir }}/.m2/repository/io/hyperfoil/hyperfoil-distribution/0.1-SNAPSHOT/hyperfoil-distribution-0.1-SNAPSHOT.zip'
+hyperfoil_repository: 'file://{{ ansible_user_dir }}/.m2/repository'
+hyperfoil_role: agent
