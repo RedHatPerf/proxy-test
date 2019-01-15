@@ -6,7 +6,7 @@ hosts:
 simulation:
   http:
 {% for proxy in groups['proxy'] %}
-  - baseUrl: http://{{ proxy_url or hostvars[proxy]['ansible_' + proxy_iface]['ipv4']['address'] }}:{{ hostvars[proxy]['proxy_port'] }}
+  - baseUrl: http://{{ hostvars[proxy]['ansible_' + proxy_iface]['ipv4']['address'] }}:{{ hostvars[proxy]['proxy_port'] }}
     sharedConnections: {{ (test_shared_connections / (groups['proxy'] | length)) | int | default(100, true) }}
 {% endfor %}
   phases:
