@@ -1,4 +1,11 @@
-[driver]
+[driver:children]
+driver-master
+driver-agent
+
+[driver-master]
+localhost
+
+[driver-agent]
 localhost
 
 [driver:vars]

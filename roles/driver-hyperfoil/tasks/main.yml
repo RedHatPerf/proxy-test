@@ -22,7 +22,7 @@
   unarchive:
     src: '{{ driver_dir }}/hyperfoil-{{ hyperfoil_version }}.zip'
     dest: '{{ driver_dir }}'
-    remote_src: false
+    remote_src: true
 - name: Start Hyperfoil
   #-XX:+UnlockCommercialFeatures -XX:+FlightRecorder
   #-XX:StartFlightRecording=compress=false,delay=10s,duration=24h,settings=profile,filename={{ driver_dir }}/hyperfoil.jfr
@@ -38,7 +38,7 @@
     -Dlog4j.configurationFile=file://{{ driver_log_config }}
     {% endif %}
     -Dio.hyperfoil.rootdir={{ driver_dir }}/workspace
-    -Dio.hyperfoil.controller.host={{ hyperfoil_controller_host }}
+    -Dio.hyperfoil.controller.host={{ groups['driver-master'][0] }}
     -Dio.hyperfoil.controller.port={{ hyperfoil_controller_port }}
     -Djgroups.tcp.address={{ ansible_hostname }}
     &> {{ driver_dir }}/{{ hyperfoil_role }}.log

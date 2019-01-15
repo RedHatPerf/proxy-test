@@ -22,15 +22,14 @@
   - include_role:
       name: "{{ proxy_impl }}"
     tags: always
-- hosts: 127.0.0.1
-  connection: local
+- hosts: driver-master
   tags: [ 'driver' ]
   tasks:
-  - include_role:
-      name: driver-hyperfoil
-    vars:
-          hyperfoil_role: controller
-- hosts: driver
+  vars:
+    hyperfoil_role: controller
+  roles:
+  - driver-hyperfoil
+- hosts: driver-agent
   tags: [ 'driver' ]
   roles:
   - driver-hyperfoil

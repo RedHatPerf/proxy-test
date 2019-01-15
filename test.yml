@@ -13,7 +13,7 @@
       method: POST
       headers:
         Content-Type: "text/vnd.yaml; charset=UTF-8"
-      url: "http://{{ groups['driver'][0] }}:{{ hyperfoil_controller_port }}/benchmark"
+      url: "http://{{ groups['driver-master'][0] }}:{{ hyperfoil_controller_port }}/benchmark"
       status_code: 204
 
 - hosts: proxy
@@ -35,7 +35,7 @@
   - name: Start benchmark
     tags: [ 'noperf' ]
     uri:
-      url: "http://{{ groups['driver'][0] }}:{{ hyperfoil_controller_port }}/benchmark/{{ test_name }}/start"
+      url: "http://{{ groups['driver-master'][0] }}:{{ hyperfoil_controller_port }}/benchmark/{{ test_name }}/start"
       status_code: 202
     register: test_run
   - tags: [ 'noperf' ]
