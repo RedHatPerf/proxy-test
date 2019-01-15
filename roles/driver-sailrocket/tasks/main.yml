@@ -7,14 +7,17 @@
     path: '{{ driver_dir }}'
     state: directory
 - name: Copy distribution
-  maven_artifact:
-    group_id: io.sailrocket
-    artifact_id: distribution
-    extension: zip
-    version: '{{ sailrocket_version }}'
+  copy:
+    src: '{{ sailrocket_distribution }}'
     dest: '{{ driver_dir }}/sailrocket-{{ sailrocket_version }}.zip'
-    repository_url: '{{ sailrocket_repository }}'
-    verify_checksum: always
+#  maven_artifact:
+#    group_id: io.sailrocket
+#    artifact_id: distribution
+#    extension: zip
+#    version: '{{ sailrocket_version }}'
+#    dest: '{{ driver_dir }}/sailrocket-{{ sailrocket_version }}.zip'
+#    repository_url: '{{ sailrocket_repository }}'
+#    verify_checksum: always
 - name: Unpack distribution
   unarchive:
     src: '{{ driver_dir }}/sailrocket-{{ sailrocket_version }}.zip'
