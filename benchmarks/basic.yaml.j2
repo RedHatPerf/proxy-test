@@ -1,8 +1,14 @@
 name: basic
+hosts:
+{% for agent in groups['driver-agent'] %}
+  {{ hostvars[agent]['ansible_fqdn'] }}: {{ hostvars[agent]['ansible_fqdn'] }}:12345
+{% endfor %}
 simulation:
   http:
-    baseUrl: http://{{ groups['proxy'][0] }}:{{ proxy_port }}
-    sharedConnections: {{ test_shared_connections | default(100, true) }}
+{% for proxy in groups['proxy'] %}
+  - baseUrl: http://{{ hostvars[proxy]['ansible_' + proxy_iface]['ipv4']['address'] }}:{{ hostvars[proxy]['proxy_port'] }}
+    sharedConnections: {{ (test_shared_connections / (groups['proxy'] | length)) | int | default(100, true) }}
+{% endfor %}
   phases:
   - rampUp:
       rampPerSec:

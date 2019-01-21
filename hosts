@@ -13,27 +13,32 @@ driver_dir=/tmp/driver
 driver_log_config=/home/rvansa/workspace/etc/log4j/log4j2-info.xml
 
 [proxy]
-localhost
+proxy1 ansible_host=localhost proxy_port=8080 proxy_admin_port=8001
 
 [proxy:vars]
 proxy_dir=/tmp/proxy
 envoy_bin=/home/rvansa/workspace/envoy/bazel-bin/source/exe/envoy-static
+proxy_workers=1
 
 [backend]
-localhost
+backend1 ansible_host=localhost backend_port=8088
 
 [backend:vars]
 backend_dir=/tmp/backend
 backend_log_config=/home/rvansa/workspace/etc/log4j/log4j2-info.xml
+backend_servers=1
+backend_workers=8
+backend_jfr=false
 
 [all:vars]
 version=0.1-SNAPSHOT
 backend_host=127.0.0.1
 backend_port=8088
+backend_iface=lo
+proxy_iface=lo
 proxy_impl=proxy-envoy
 proxy_config=http-proxy
 proxy_port=8080
-proxy_workers=1
 # Build from https://github.com/jesperpedersen/perfjava
 libperfjava=/home/rvansa/workspace/perfjava/libperfjava.so
 hyperfoil_controller_host=0.0.0.0
@@ -42,5 +47,6 @@ test_name=basic
 test_rampup_duration=20
 test_steady_duration=60
 test_users_per_sec=2000
+test_inc_users_per_sec=2000
 test_result_dir=/tmp/
 test_shared_connections=1000

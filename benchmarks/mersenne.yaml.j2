@@ -1,36 +1,56 @@
 name: mersenne
+hosts:
+{% for agent in groups['driver-agent'] %}
+  {{ hostvars[agent]['ansible_fqdn'] }}: {{ hostvars[agent]['ansible_fqdn'] }}:12345
+{% endfor %}
 simulation:
+  threads: 16
   http:
-    baseUrl: http://{{ groups['proxy'][0] }}:{{ proxy_port }}
-    sharedConnections: {{ test_shared_connections | default(100, true) }}
+{% for proxy in groups['proxy'] %}
+  - baseUrl: http://{{ hostvars[proxy]['ansible_' + proxy_iface]['ipv4']['address'] }}:{{ hostvars[proxy]['proxy_port'] }}
+    sharedConnections: {{ (test_shared_connections / (groups['proxy'] | length)) | int | default(100, true) }}
+{% endfor %}
   phases:
   - warmup:
-      constantPerSec:
-        usersPerSec: 2000
+      rampPerSec:
+        initialUsersPerSec: 1
+        targetUsersPerSec: {{ test_users_per_sec }}
         duration: 20
+        maxDuration: 21
+        maxUnfinishedSessions: {{ test_users_per_sec }}
         scenario: &scenario
           orderedSequences:
           - test:
-            - sla:
-                errorRate: 0.05
-                meanResponseTime: 500 ms
+            - randomItem:
+                var: url
+                list:
+{% for proxy in groups['proxy'] %}
+                - http://{{ hostvars[proxy]['ansible_' + proxy_iface]['ipv4']['address'] }}:{{ hostvars[proxy]['proxy_port'] }}
+{% endfor %}
             - randomInt:
-                min: 20
-                max: 100
+                min: 200
+                max: 300
                 var: p
             - httpRequest:
+                baseUrl:
+                  var: url
                 GET:
-                  pattern: /mersenne?p=${p}
+                  pattern: /mersenneprime?p=${p}
+                handler:
+                  statusValidator:
+                    range:
+                      min: 200
+                      max: 299
             - awaitAllResponses
   - iterations:
       constantPerSec:
         startAfter: warmup
         usersPerSec:
-          base:      10000
-          increment: 1000
-        maxIterations: 15
+          base:      {{ test_users_per_sec }}
+          increment: {{ test_inc_users_per_sec }}
+        maxIterations: 30
         duration: 20
         # We need to set maxDuration, otherwise the scheduled request would prolong the phase
-        maxDuration: 20
-        maxUnfinishedSessions: 500
+        maxDuration: 21
+        maxUnfinishedSessions: {{ test_users_per_sec }}
         scenario: *scenario

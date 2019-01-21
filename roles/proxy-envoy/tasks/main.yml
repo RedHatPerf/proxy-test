@@ -5,13 +5,13 @@
 - name: Copy config template
   template:
     src: '{{ proxy_config }}.yaml.j2'
-    dest: '{{ proxy_dir }}/envoy-config.yaml'
+    dest: '{{ proxy_dir }}/envoy-config-{{ proxy_port }}.yaml'
 - name: Start Envoy
   shell: >
-    {{ envoy_bin }} -c {{ proxy_dir }}/envoy-config.yaml
+    {{ envoy_bin }} -c {{ proxy_dir }}/envoy-config-{{ proxy_port }}.yaml --base-id {{ proxy_port }}
     {% if proxy_workers is defined %}
     --concurrency {{ proxy_workers }}
     {% endif %}
-    &> {{ proxy_dir }}/envoy.log
+    &> {{ proxy_dir }}/envoy-{{ proxy_port }}.log
   async: 100000
   poll: 0

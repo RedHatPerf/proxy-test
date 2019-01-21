@@ -24,8 +24,6 @@
     dest: '{{ driver_dir }}'
     remote_src: true
 - name: Start Hyperfoil
-  #-XX:+UnlockCommercialFeatures -XX:+FlightRecorder
-  #-XX:StartFlightRecording=compress=false,delay=10s,duration=24h,settings=profile,filename={{ driver_dir }}/hyperfoil.jfr
   shell: >
     {{ driver_dir }}/hyperfoil-{{ hyperfoil_version }}/bin/{{ hyperfoil_role }}.sh
     -Dio.hyperfoil.role={{ hyperfoil_role }}
@@ -41,6 +39,10 @@
     -Dio.hyperfoil.controller.host={{ groups['driver-master'][0] }}
     -Dio.hyperfoil.controller.port={{ hyperfoil_controller_port }}
     -Djgroups.tcp.address={{ ansible_hostname }}
-    &> {{ driver_dir }}/{{ hyperfoil_role }}.log
+    {% if driver_jfr == true %}
+    -XX:+UnlockCommercialFeatures -XX:+FlightRecorder
+    -XX:StartFlightRecording=compress=false,delay=10s,duration=24h,settings=profile,filename={{ driver_dir }}/{{ hyperfoil_role }}-{{ ansible_hostname }}.jfr
+    {% endif %}
+    &> {{ driver_dir }}/{{ hyperfoil_role }}-{{ ansible_hostname }}.log
   async: 100000
   poll: 0

@@ -31,9 +31,11 @@ static_resources:
     lb_policy: round_robin
     http2_protocol_options: {}
     hosts:
+{% for backend in groups['backend'] %}
     - socket_address:
-        address: {{ backend_host }}
-        port_value: {{ backend_port }}
+        address: {{ hostvars[backend]['ansible_' + backend_iface]['ipv4']['address'] }}
+        port_value: {{ hostvars[backend]['backend_port'] }}
+{% endfor %}
     circuit_breakers: # effectively disable circuit breaking
       thresholds:
        - priority: DEFAULT

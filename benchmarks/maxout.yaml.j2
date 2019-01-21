@@ -1,8 +1,15 @@
 name: maxout
+hosts:
+{% for agent in groups['driver-agent'] %}
+  {{ hostvars[agent]['ansible_fqdn'] }}: {{ hostvars[agent]['ansible_fqdn'] }}:12345
+{% endfor %}
 simulation:
+  threads: 16
   http:
-    baseUrl: http://{{ groups['proxy'][0] }}:{{ proxy_port }}
-    sharedConnections: {{ test_shared_connections | default(100, true) }}
+{% for proxy in groups['proxy'] %}
+  - baseUrl: http://{{ hostvars[proxy]['ansible_' + proxy_iface]['ipv4']['address'] }}:{{ hostvars[proxy]['proxy_port'] }}
+    sharedConnections: {{ (test_shared_connections / (groups['proxy'] | length)) | int | default(100, true) }}
+{% endfor %}
   phases:
   - warmup:
       constantPerSec:
@@ -22,9 +29,9 @@ simulation:
       constantPerSec:
         startAfter: warmup
         usersPerSec:
-          base:      5000
-          increment: 5000
-        maxIterations: 15
+          base:      {{ test_users_per_sec }}
+          increment: {{ test_inc_users_per_sec }}
+        maxIterations: 30
         duration: 20
         # We need to set maxDuration, otherwise the scheduled request would prolong the phase
         maxDuration: 20

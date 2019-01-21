@@ -13,3 +13,4 @@ target
 *~
 # Ansible retry
 *.retry
+.project
