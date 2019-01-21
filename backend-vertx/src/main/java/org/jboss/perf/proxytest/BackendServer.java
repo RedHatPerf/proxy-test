@@ -1,6 +1,7 @@
 package org.jboss.perf.proxytest;
 
 import java.math.BigInteger;
+import java.util.concurrent.atomic.LongAdder;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -22,10 +23,14 @@ public class BackendServer extends AbstractVerticle {
    private static final Logger log = LoggerFactory.getLogger(BackendServer.class);
 
    private int port = Integer.getInteger("backend.port", 8080);
+   private static LongAdder inflight = new LongAdder();
 
    @Override
    public void start(Future<Void> startFuture) {
       Router router = Router.router(vertx);
+      router.route(HttpMethod.GET, "/inflight").handler(ctx -> {
+         ctx.response().end(inflight.longValue() + "\n");
+      });
       router.route(HttpMethod.GET, "/").handler(ctx -> {
          HttpServerResponse response = ctx.response();
          response.putHeader(HttpHeaderNames.SERVER, "Vert.x");
@@ -42,6 +47,7 @@ public class BackendServer extends AbstractVerticle {
          int p;
          try {
             p = Integer.parseInt(pStr);
+            inflight.increment();
             vertx.executeBlocking(future -> {
                BigInteger s = FOUR;
                BigInteger M = BigInteger.valueOf(2).pow(p).add(MINUS_ONE);
@@ -50,6 +56,7 @@ public class BackendServer extends AbstractVerticle {
                }
                future.complete(s.compareTo(BigInteger.ZERO) == 0);
             }, false, result -> {
+               inflight.decrement();
                if (ctx.response().ended()) {
                   // connection has been closed before we calculated the result
                   return;
@@ -70,7 +77,7 @@ public class BackendServer extends AbstractVerticle {
             vertx.close();
          } else {
             HttpServer server = result.result();
-            System.out.printf("Backend listening on port %d%n", server.actualPort());
+            System.out.printf("Backend %s listening on port %d%n", deploymentID(), server.actualPort());
          }
       });
    }
