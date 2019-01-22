@@ -1,13 +1,5 @@
 # This playbook starts driver, proxy and backend
 # Run with --tags shutdown to stop all services
-- hosts: 127.0.0.1
-  connection: local
-  tasks:
-  - name: "Build Backend"
-    tags: [ 'never', 'build' ]
-    command: 'mvn install'
-    args:
-      chdir: backend-vertx
 - hosts: backend
   tags: [ 'backend' ]
   roles:
