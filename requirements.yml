@@ -1,0 +1,3 @@
+- src: hyperfoil.hyperfoil_setup
+- src: hyperfoil.hyperfoil_shutdown
+- src: hyperfoil.hyperfoil_test

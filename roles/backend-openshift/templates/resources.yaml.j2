@@ -131,6 +131,8 @@ items:
         labels:
           deploymentconfig: backend
       spec:
+        nodeSelector:
+          kubernetes.io/hostname={{ backend_node }}
         containers:
         - image: {{ docker_registry }}/{{ namespace }}/mannequin:latest
           imagePullPolicy: Always

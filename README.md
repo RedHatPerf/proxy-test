@@ -18,7 +18,7 @@ This does not trigger the load yet; benchmark is deployed and started with
 ansible-playbook -i hosts --ask-become-pass test.yml
 ```
 
-This requires elevated priviledges since we're running system-wide `perf record` on the machine running proxy. The result flamegraph will be stored in `{{ test_flamegraph }}` (defaults to `/tmp/perf.svg`, configure in `hosts`). Performance results are stored in `{{ driver_dir }}/workspace/run/XXXX/stats` (`{{ driver_dir }}` default to `/tmp/driver`).
+This requires elevated priviledges since we're running system-wide `perf record` on the machine running proxy. The result flamegraph will be stored in `{{ test_flamegraph }}` (defaults to `/tmp/perf.svg`, configure in `hosts`). Performance results are stored in `{{ hyperfoil_dir }}/workspace/run/XXXX/stats` (`{{ hyperfoil_dir }}` defaults to `/tmp/driver`).
 
 Top stop all the services run:
 

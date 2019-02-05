@@ -10,7 +10,9 @@
   git:
     repo: https://github.com/RedHatPerf/mannequin
     dest: '{{ backend_dir }}/mannequin'
+  register: mannequin_repo
 - name: Build backend
+  when: mannequin_repo.changed
   command: 'mvn install'
   args:
     chdir: '{{ backend_dir }}/mannequin'

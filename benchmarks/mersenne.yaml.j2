@@ -1,7 +1,7 @@
 name: mersenne
 hosts:
-{% for agent in groups['driver-agent'] %}
-  {{ hostvars[agent]['ansible_fqdn'] }}: {{ hostvars[agent]['ansible_fqdn'] }}:12345
+{% for agent in agents %}
+  {{ agent }}: {{ agent }}:12345
 {% endfor %}
 simulation:
   threads: 16

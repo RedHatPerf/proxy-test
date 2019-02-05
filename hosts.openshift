@@ -11,7 +11,6 @@ benchclient1
 
 [driver:vars]
 driver_jfr=false
-driver_dir=/tmp/driver
 #driver_log_config=/home/benchuser/rvansa/log4j2.xml
 driver_log_config=/home/benchuser/rvansa/log4j2-info.xml
 
@@ -25,6 +24,7 @@ backend_cpu=16
 
 [all:vars]
 backend_impl=backend-openshift
+backend_node=benchserver2
 proxy_workers=8
 proxy_cpu=8
 

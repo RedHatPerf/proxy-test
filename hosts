@@ -9,7 +9,6 @@ localhost
 localhost
 
 [driver:vars]
-driver_dir=/tmp/driver
 driver_log_config=/home/rvansa/workspace/etc/log4j/log4j2-info.xml
 
 [proxy]

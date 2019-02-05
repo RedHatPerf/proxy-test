@@ -7,6 +7,17 @@
 - hosts: 127.0.0.1
   connection: local
   tasks:
+  - name: Get agents
+    tags: [ 'noperf']
+    uri:
+      url: "http://{{ groups['driver-master'][0] }}:{{ hyperfoil_controller_port }}/agents"
+      return_content: true
+      status_code: "200"
+    register: agents_json
+  - name: Filter agents
+    tags: [ 'noperf' ]
+    set_fact:
+      agents: "{{ agents_json.content | from_json | json_query('[].name') }}"
   - name: Apply benchmark template
     tags: [ 'noperf' ]
     template:

@@ -8,23 +8,25 @@
     tags: always
 - hosts: proxy
   tags: [ 'proxy' ]
-  when: proxy_impl is defined
   tasks:
   - name: Create proxy dir
+    when: proxy_impl is defined
     file:
       path: '{{ proxy_dir }}'
       state: directory
-  - include_role:
+  - when: proxy_impl is defined
+    include_role:
       name: "{{ proxy_impl }}"
     tags: always
 - hosts: driver-master
   tags: [ 'driver' ]
-  tasks:
   vars:
     hyperfoil_role: controller
   roles:
-  - driver-hyperfoil
+  - hyperfoil.hyperfoil_setup
 - hosts: driver-agent
   tags: [ 'driver' ]
+  vars:
+    hyperfoil_role: agent
   roles:
-  - driver-hyperfoil
+  - hyperfoil.hyperfoil_setup
