@@ -121,9 +121,9 @@
   - name: "Create stacktraces"
     shell: "/tmp/stackcollapse-perf.pl --pid {{ perf_dir_local.path }}/perf.stacks > {{ perf_dir_local.path }}/perf.inline"
   - name: "Create flamegraph"
-    shell: /tmp/flamegraph.pl --colors=java --width=1850 {{ perf_dir_local.path }}/perf.inline > {{ test_result_dir }}/{{ test_runid }}-{{ proxy_impl }}.svg
+    shell: /tmp/flamegraph.pl --colors=java --width=1850 {{ perf_dir_local.path }}/perf.inline > {{ test_result_dir }}/{{ test_runid }}-{{ proxy_impl or 'none' }}.svg
   - debug:
-      msg: "Flamegraph: {{ test_result_dir }}/{{ test_runid }}-{{ proxy_impl }}.svg"
+      msg: "Flamegraph: {{ test_result_dir }}/{{ test_runid }}-{{ proxy_impl or 'none' }}.svg"
   - name: "Delete temp dirs"
     file:
       path: "{{ perf_dir_local.path }}"

@@ -1,0 +1,10 @@
+namespace: istio-scale
+docker_registry: docker-registry.default.svc:5000
+# Note: gateway and wildcard route is not set up by this script!
+gateway: gateway.istio-system.svc.cluster.local
+wildcard_domain: istio.127.0.0.1.nip.io
+proxy_cpu: 1000m
+# Note: setting concurrency needs change in sidecar config map!
+proxy_concurrency: 1
+backend_cpu: 1000m
+backend_version: 0.1-SNAPSHOT

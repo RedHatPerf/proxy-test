@@ -2,10 +2,13 @@
 # Run with --tags shutdown to stop all services
 - hosts: backend
   tags: [ 'backend' ]
-  roles:
-  - backend-vertx
+  tasks:
+  - include_role:
+      name: "{{ backend_impl }}"
+    tags: always
 - hosts: proxy
   tags: [ 'proxy' ]
+  when: proxy_impl is defined
   tasks:
   - name: Create proxy dir
     file:

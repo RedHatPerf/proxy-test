@@ -1,0 +1,204 @@
+apiVersion: v1
+kind: Template
+items:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    name: openjdk18-openshift
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - from:
+        kind: DockerImage
+        name: registry.access.redhat.com/redhat-openjdk-18/openjdk18-openshift:latest
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: Source
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      app: mannequin
+    name: mannequin-builder
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: mannequin-builder:latest
+    runPolicy: Serial
+    source:
+      git:
+        uri: https://github.com/RedHatPerf/mannequin
+      type: Git
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: openjdk18-openshift:latest
+      type: Source
+    triggers:
+    - type: ConfigChange
+    - imageChange:
+        from:
+          kind: ImageStreamTag
+          name: openjdk18-openshift:latest
+      type: ImageChange
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    name: mannequin-builder
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - from:
+        kind: DockerImage
+        name: {{ docker_registry }}/{{ namespace }}/mannequin-builder:latest
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: Source
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    name: mannequin
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - from:
+        kind: DockerImage
+        name: {{ docker_registry }}/{{ namespace }}/mannequin:latest
+      generation: 3
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: Source
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      app: mannequin
+    name: mannequin
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: mannequin:latest
+    runPolicy: Serial
+    source:
+      images:
+      - from:
+          kind: ImageStreamTag
+          name: mannequin-builder:latest
+        paths:
+        - destinationDir: deployments
+          sourcePath: /home/jboss/target/mannequin-{{ backend_version }}-fat.jar
+      type: Image
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: openjdk18-openshift:latest
+      type: Source
+    triggers:
+    - imageChange:
+        from:
+          kind: ImageStreamTag
+          name: openjdk18-openshift:latest
+      type: ImageChange
+    - type: ConfigChange
+    - imageChange:
+        from:
+          kind: ImageStreamTag
+          name: mannequin-builder:latest
+      type: ImageChange
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: backend
+  spec:
+    replicas: 1
+    template:
+      metadata:
+        annotations:
+          sidecar.istio.io/inject: "true"
+          sidecar.istio.io/proxyCPU: {{ proxy_cpu }}
+          sidecar.istio.io/proxyMemory: 250M
+          sidecar.istio.io/proxyConcurrency: {{ proxy_workers }}
+        labels:
+          deploymentconfig: backend
+      spec:
+        containers:
+        - image: {{ docker_registry }}/{{ namespace }}/mannequin:latest
+          imagePullPolicy: Always
+          name: mannequin
+          env:
+          - name: NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: JAVA_OPTIONS
+            value: >
+              -Dbackend.port=8080
+              -Dbackend.servers={{ backend_servers }}
+              -Dvertx.options.workerPoolSize={{ backend_workers }}
+              -Dvertx.logger-delegate-factory-class-name=io.vertx.core.logging.Log4j2LogDelegateFactory
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+                - curl
+                - localhost:8080/
+              initialDelaySeconds: 5
+          resources:
+            requests:
+              cpu: {{ backend_cpu }}
+            limits:
+              cpu: {{ backend_cpu }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames: [ mannequin ]
+        from:
+          kind: ImageStreamTag
+          name: mannequin:latest
+      type: ImageChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: backend
+    name: backend
+  spec:
+    ports:
+    - name: http-8080
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      deploymentconfig: backend
+    sessionAffinity: None
+    type: ClusterIP
+- apiVersion: networking.istio.io/v1alpha3
+  kind: VirtualService
+  metadata:
+    name: backend
+  spec:
+    gateways:
+    - {{ gateway }}
+    hosts:
+    - backend.{{ namespace }}.svc.cluster.local
+    - backend.{{ wildcard_domain }}
+    http:
+    - route:
+      - destination:
+          host: backend.{{ namespace }}.svc.cluster.local

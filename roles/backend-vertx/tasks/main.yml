@@ -33,7 +33,7 @@
     -XX:+UnlockCommercialFeatures -XX:+FlightRecorder
     -XX:StartFlightRecording=compress=false,delay=10s,duration=24h,settings=profile,filename={{ backend_dir }}/backend-{{ backend_port }}.jfr
     {% endif %}
-    -jar {{ backend_dir }}/mannequin/target/mannequin-{{ version }}-fat.jar
+    -jar {{ backend_dir }}/mannequin/target/mannequin-{{ backend_version }}-fat.jar
     &> {{ backend_dir }}/vertx-{{ backend_port }}.log
   async: 100000
   poll: 0
