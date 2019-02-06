@@ -1,7 +1,4 @@
-- name: Kill old proxy
-  tags: [ 'shutdown' ]
-  command: pkill -f nginx
-  failed_when: false
+- import_tasks: shutdown.yml
 - name: Copy config template
   template:
     src: config.conf.j2

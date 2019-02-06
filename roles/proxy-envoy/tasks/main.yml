@@ -1,7 +1,4 @@
-- name: Kill old proxy
-  tags: [ 'shutdown' ]
-  command: pkill -f {{ envoy_bin }}
-  failed_when: false
+- import_tasks: shutdown.yml
 - name: Copy config template
   template:
     src: '{{ proxy_config }}.yaml.j2'

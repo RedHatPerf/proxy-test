@@ -1,7 +1,4 @@
-- name: Kill old proxy
-  tags: [ 'shutdown' ]
-  command: pkill socat
-  failed_when: false
+- import_tasks: shutdown.yml
 - name: Start Socat
   shell: socat TCP-LISTEN:{{ proxy_port }},fork,bind={{ groups['proxy'][0] }} TCP:{{ backend_host }}:{{ backend_port }} &> {{ proxy_dir }}/socat.log
   async: 100000

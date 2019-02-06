@@ -1,0 +1,3 @@
+- name: Kill proxy
+  command: pkill -f {{ envoy_bin }}
+  failed_when: false

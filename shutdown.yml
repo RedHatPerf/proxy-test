@@ -1,0 +1,18 @@
+- hosts: driver
+  tags: [ 'driver' ]
+  roles:
+  - hyperfoil.hyperfoil_shutdown
+- hosts: proxy
+  tags: [ 'proxy' ]
+  tasks:
+  - include_role:
+      name: "{{ proxy_impl }}"
+      tasks_from: "shutdown.yml"
+    tags: always
+- hosts: backend
+  tags: [ 'backend' ]
+  tasks:
+  - include_role:
+      name: "{{ backend_impl }}"
+      tasks_from: "shutdown.yml"
+    tags: always

@@ -1,0 +1,3 @@
+- name: Kill old proxy
+  command: pkill socat
+  failed_when: false

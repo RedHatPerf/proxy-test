@@ -1,0 +1,2 @@
+- name: "Downscale backend"
+  command: oc scale dc backend --replicas=0

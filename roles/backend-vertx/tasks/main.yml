@@ -1,7 +1,4 @@
-- name: Kill old backend
-  tags: [ 'shutdown' ]
-  command: pkill -f mannequin
-  failed_when: false
+- import_tasks: shutdown.yml
 - name: Create backend dir
   file:
     path: '{{ backend_dir }}'

@@ -1,0 +1,3 @@
+- name: Kill backend
+  command: pkill -f mannequin
+  failed_when: false
