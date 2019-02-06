@@ -11,8 +11,8 @@ benchclient1
 
 [driver:vars]
 driver_jfr=false
-#driver_log_config=/home/benchuser/rvansa/log4j2.xml
-driver_log_config=/home/benchuser/rvansa/log4j2-info.xml
+#hyperfoil_log_config=/home/benchuser/rvansa/log4j2.xml
+hyperfoil_log_config=/home/benchuser/rvansa/log4j2-info.xml
 
 [proxy]
 proxy1 ansible_host=benchserver1 proxy_port=8080 proxy_admin_port=8001

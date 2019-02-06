@@ -10,9 +10,9 @@ benchclient1
 #benchclient2
 
 [driver:vars]
-driver_jfr=false
-#driver_log_config=/home/benchuser/rvansa/log4j2.xml
-driver_log_config=/home/benchuser/rvansa/log4j2-info.xml
+hyperfoil_jfr=false
+#hyperfoil_log_config=/home/benchuser/rvansa/log4j2.xml
+hyperfoil_log_config=/home/benchuser/rvansa/log4j2-info.xml
 
 [backend]
 backend ansible_host=benchserver7

@@ -9,7 +9,7 @@ localhost
 localhost
 
 [driver:vars]
-driver_log_config=/home/rvansa/workspace/etc/log4j/log4j2-info.xml
+hyperfoil_log_config=/home/rvansa/workspace/etc/log4j/log4j2-info.xml
 
 [proxy]
 proxy1 ansible_host=localhost proxy_port=8080 proxy_admin_port=8001
