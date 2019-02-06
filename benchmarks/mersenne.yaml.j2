@@ -6,9 +6,9 @@ hosts:
 simulation:
   threads: 16
   http:
-{% for proxy in groups['proxy'] %}
-  - baseUrl: http://{{ proxy_url or hostvars[proxy]['ansible_' + proxy_iface]['ipv4']['address'] }}:{{ hostvars[proxy]['proxy_port'] }}
-    sharedConnections: {{ (test_shared_connections / (groups['proxy'] | length)) | int | default(100, true) }}
+{% for url in test_urls %}
+  - baseUrl: {{ url }}
+    sharedConnections: {{ (test_shared_connections / (test_urls | length)) | int | default(100, true) }}
 {% endfor %}
   phases:
   - warmup:
@@ -23,10 +23,7 @@ simulation:
           - test:
             - randomItem:
                 var: url
-                list:
-{% for proxy in groups['proxy'] %}
-                - http://{{ hostvars[proxy]['ansible_' + proxy_iface]['ipv4']['address'] }}:{{ hostvars[proxy]['proxy_port'] }}
-{% endfor %}
+                list: [ {% for url in test_urls %}"{{ url }}",{% endfor %} ]
             - randomInt:
                 min: 200
                 max: 300

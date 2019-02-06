@@ -18,6 +18,11 @@
     tags: [ 'noperf' ]
     set_fact:
       agents: "{{ agents_json.content | from_json | json_query('[].name') }}"
+  - name: Set test urls
+    tags: [ 'noperf' ]
+    when: test_urls is undefined
+    set_fact:
+      test_urls: "[ {% for proxy in groups['proxy'] %}'http://{{ hostvars[proxy]['ansible_' + proxy_iface]['ipv4']['address'] }}:{{ hostvars[proxy]['proxy_port'] }}',{% endfor %} ]"
   - name: Apply benchmark template
     tags: [ 'noperf' ]
     template:
