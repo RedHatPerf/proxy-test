@@ -37,5 +37,5 @@ test_inc_users_per_sec=2000
 test_shared_connections=5000
 
 wildcard_domain=istio.benchserver7.perf.lab.eng.rdu.redhat.com
-test_urls=[ "backend.istio.benchserver7.perf.lab.eng.rdu.redhat.com" ]
+test_urls=[ "http://backend.istio.benchserver7.perf.lab.eng.rdu.redhat.com" ]
 gateway=app-gateway.istio-system.svc.cluster.local
