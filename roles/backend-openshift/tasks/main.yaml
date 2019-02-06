@@ -2,6 +2,8 @@
   template:
     src: resources.yaml.j2
     dest: /tmp/resources.yaml
+- name: Make sure we are in correct namespace
+  command: oc project {{ namespace }}
 - name: Apply template
   command: oc apply -f /tmp/resources.yaml
 - name: Find existing backend image
