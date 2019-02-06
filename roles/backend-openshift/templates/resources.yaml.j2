@@ -125,14 +125,14 @@ items:
       metadata:
         annotations:
           sidecar.istio.io/inject: "true"
-          sidecar.istio.io/proxyCPU: {{ proxy_cpu }}
+          sidecar.istio.io/proxyCPU: "{{ proxy_cpu }}"
           sidecar.istio.io/proxyMemory: 250M
-          sidecar.istio.io/proxyConcurrency: {{ proxy_workers }}
+          sidecar.istio.io/proxyConcurrency: "{{ proxy_workers }}"
         labels:
           deploymentconfig: backend
       spec:
         nodeSelector:
-          kubernetes.io/hostname={{ backend_node }}
+          kubernetes.io/hostname: {{ backend_node }}
         containers:
         - image: {{ docker_registry }}/{{ namespace }}/mannequin:latest
           imagePullPolicy: Always
@@ -160,9 +160,9 @@ items:
               initialDelaySeconds: 5
           resources:
             requests:
-              cpu: {{ backend_cpu }}
+              cpu: "{{ backend_cpu }}"
             limits:
-              cpu: {{ backend_cpu }}
+              cpu: "{{ backend_cpu }}"
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
     triggers:

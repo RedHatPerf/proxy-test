@@ -31,7 +31,7 @@
       headers:
         Content-Type: "text/vnd.yaml; charset=UTF-8"
       url: "http://{{ groups['driver-master'][0] }}:{{ hyperfoil_controller_port }}/benchmark"
-      status_code: 204
+      status_code: "204"
 
 - hosts: proxy
   tasks:
