@@ -10,7 +10,7 @@ benchclient1
 #benchclient2
 
 [driver:vars]
-driver_jfr=false
+hyperfoil_jfr=false
 #hyperfoil_log_config=/home/benchuser/rvansa/log4j2.xml
 hyperfoil_log_config=/home/benchuser/rvansa/log4j2-info.xml
 
@@ -51,7 +51,7 @@ hyperfoil_distribution=/home/benchuser/rvansa/Hyperfoil/distribution/target/hype
 #test_name=maxout
 test_name=mersenne
 test_rampup_duration=20
-test_steady_duration=60
+test_steady_duration=20
 test_users_per_sec=10000
 test_inc_users_per_sec=2000
 test_result_dir=/tmp/

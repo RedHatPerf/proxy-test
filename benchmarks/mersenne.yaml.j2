@@ -15,8 +15,8 @@ simulation:
       rampPerSec:
         initialUsersPerSec: 1
         targetUsersPerSec: {{ test_users_per_sec }}
-        duration: 20
-        maxDuration: 21
+        duration: {{ test_rampup_duration }}
+        maxDuration: {{ test_rampup_duration + 1 }}
         maxUnfinishedSessions: {{ test_users_per_sec }}
         scenario: &scenario
           orderedSequences:
@@ -46,8 +46,8 @@ simulation:
           base:      {{ test_users_per_sec }}
           increment: {{ test_inc_users_per_sec }}
         maxIterations: 30
-        duration: 20
+        duration: {{ test_steady_duration }}
         # We need to set maxDuration, otherwise the scheduled request would prolong the phase
-        maxDuration: 21
+        maxDuration: {{ test_steady_duration + 1 }}
         maxUnfinishedSessions: {{ test_users_per_sec }}
         scenario: *scenario

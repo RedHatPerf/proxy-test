@@ -31,9 +31,9 @@ proxy_cpu=8
 hyperfoil_distribution=/home/benchuser/rvansa/Hyperfoil/distribution/target/hyperfoil-0.1-SNAPSHOT.zip
 test_name=mersenne
 test_rampup_duration=20
-test_steady_duration=60
-test_users_per_sec=10000
-test_inc_users_per_sec=2000
+test_steady_duration=20
+test_users_per_sec=5000
+test_inc_users_per_sec=1000
 test_shared_connections=5000
 
 wildcard_domain=istio.benchserver7.perf.lab.eng.rdu.redhat.com
