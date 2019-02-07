@@ -204,3 +204,16 @@ items:
     - route:
       - destination:
           host: backend.{{ namespace }}.svc.cluster.local
+- apiVersion: networking.istio.io/v1alpha3
+  kind: DestinationRule
+  metadata:
+    name: backend
+  spec:
+    host: backend.{{ namespace }}.svc.cluster.local
+    trafficPolicy:
+      connectionPool:
+        http:
+          http2MaxRequests: 10000
+          http1MaxPendingRequests: 10000
+        tcp:
+          maxConnections: 10000

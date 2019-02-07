@@ -13,6 +13,8 @@
 - name: Build backend
   when: existing_backend is failed
   command: oc start-build mannequin-builder
+- name: Make sure backend is scaled up
+  command: oc scale dc backend --replicas=1
 - name: Wait for backend to come up
   uri:
     url: "http://backend.{{ wildcard_domain }}"
