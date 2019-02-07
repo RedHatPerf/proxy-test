@@ -25,7 +25,7 @@ backend_cpu=16
 [all:vars]
 backend_impl=backend-openshift
 backend_node=benchserver2
-proxy_workers=4
+proxy_workers=8
 proxy_cpu=2
 
 hyperfoil_distribution=/home/benchuser/rvansa/Hyperfoil/distribution/target/hyperfoil-0.1-SNAPSHOT.zip
