@@ -1,18 +1,26 @@
-- name: Create template
-  template:
-    src: resources.yaml.j2
-    dest: /tmp/resources.yaml
 - name: Make sure we are in correct namespace
   command: oc project {{ namespace }}
-- name: Apply template
-  command: oc apply -f /tmp/resources.yaml
 - name: Find existing backend image
   shell: oc get images -n {{ namespace }} | grep "{{ namespace}}/mannequin@"
   register: existing_backend
   ignore_errors: true
-- name: Build backend
+- name: Apply builder
   when: existing_backend is failed
-  command: oc start-build mannequin-builder
+  block:
+  - name: Build backend
+    command: oc start-build mannequin-builder
+  - name: Process builder template
+    template:
+      src: builder.yaml.j2
+      dest: /tmp/builder.yaml
+  - name: Apply builder template
+    command: oc apply -f /tmp/builder/yaml
+- name: Process resources template
+  template:
+    src: resources.yaml.j2
+    dest: /tmp/resources.yaml
+- name: Apply resources template
+  command: oc apply -f /tmp/resources.yaml
 - name: Make sure backend is scaled up
   command: oc scale dc backend --replicas=1
 - name: Wait for backend to come up
