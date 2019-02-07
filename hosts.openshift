@@ -18,15 +18,15 @@ hyperfoil_log_config=/home/benchuser/rvansa/log4j2-info.xml
 backend ansible_host=benchserver7
 
 [backend:vars]
-backend_servers=16
+backend_servers=8
 backend_workers=16
 backend_cpu=16
 
 [all:vars]
 backend_impl=backend-openshift
 backend_node=benchserver2
-proxy_workers=8
-proxy_cpu=8
+proxy_workers=1
+proxy_cpu=1
 
 hyperfoil_distribution=/home/benchuser/rvansa/Hyperfoil/distribution/target/hyperfoil-0.1-SNAPSHOT.zip
 test_name=mersenne
